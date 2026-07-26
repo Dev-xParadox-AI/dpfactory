@@ -18,7 +18,7 @@ on:
       dry_run:
         description: 'Run without publishing to Gumroad'
         required: false
-        default: 'false'
+        default: 'true'
         type: boolean
 
 permissions:
