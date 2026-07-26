@@ -2,10 +2,10 @@ name: Digital Product Factory
 
 on:
   schedule:
-    # Runs at 06:00 and 18:00 CET/CEST (04:00 and 16:00 UTC)
-    - cron: '0 4,16 * * *'
+    # Runs every hour at minute 0 (UTC) = every hour CET/CEST
+    # GitHub Actions uses UTC
+    - cron: '0 * * * *'
   workflow_dispatch:
-    inputs:
       niches:
         description: 'Niche IDs to process (comma-separated, empty = all)'
         required: false
@@ -76,6 +76,7 @@ jobs:
           GUMROAD_APPLICATION_ID=${{ secrets.GUMROAD_APPLICATION_ID }}
           CF_ACCOUNT_ID=${{ secrets.CF_ACCOUNT_ID }}
           CF_API_TOKEN=${{ secrets.CF_API_TOKEN }}
+          NVIDIA_NIM_API_KEY=${{ secrets.NVIDIA_NIM_API_KEY }}
           DISCORD_WEBHOOK_URL=${{ secrets.DISCORD_WEBHOOK_URL }}
           SLACK_WEBHOOK_URL=${{ secrets.SLACK_WEBHOOK_URL }}
           EOF
