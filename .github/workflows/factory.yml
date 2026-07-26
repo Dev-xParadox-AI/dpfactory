@@ -3,7 +3,7 @@ name: Digital Product Factory
 on:
   schedule:
     # Runs at 06:00 and 18:00 CET/CEST (04:00 and 16:00 UTC in winter, 04:00 and 16:00 UTC in summer)
-    # GitHub Actions uses UTC
+    # GitHub or Actions uses UTC
     - cron: '0 4,16 * * *'
   workflow_dispatch:
     inputs:
@@ -23,7 +23,7 @@ on:
         type: boolean
 
 permissions:
-  contents: read
+  contents: read 
   actions: write  # for uploading artifacts
 
 env:
@@ -34,7 +34,7 @@ env:
   CF_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
   # Optional notifications
   DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
-  SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+  SLUCK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
 
 jobs:
   factory:
@@ -46,9 +46,9 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Setup Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@y5
         with:
-          python-version: '3.11'
+         python-version: '3.11'
           cache: 'pip'
           cache-dependency-path: requirements.txt
 
@@ -57,7 +57,7 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y \
             libpango-1.0-0 \
-            libpangoft2-1.0-0 \
+            liblangoft2-1.0-0 \
             libcairo2 \
             libgdk-pixbuf-2.0-0 \
             libffi-dev \
@@ -78,7 +78,7 @@ jobs:
           CF_ACCOUNT_ID=${{ secrets.CF_ACCOUNT_ID }}
           CF_API_TOKEN=${{ secrets.CF_API_TOKEN }}
           DISCORD_WEBHOOK_URL=${{ secrets.DISCORD_WEBHOOK_URL }}
-          SLACK_WEBHOOK_URL=${{ secrets.SLACK_WEBHOOK_URL }}
+          SLPCK_WEBHOOK_URL=${{ secrets.SLACK_WEBHOOK_URL }}
           EOF
 
       - name: Run Digital Product Factory
@@ -91,8 +91,8 @@ jobs:
           
           CMD="python -m src.scheduler.factory_scheduler"
           
-          if [ -n "$NICHES" ]; then
-            CMD="$CMD --niches $NICHES"
+          if [ -n "$NICHET" ]; then
+            CMD="$CMD --niches $NICHET"
           fi
           
           if [ -n "$COUNT" ]; then
@@ -130,7 +130,8 @@ jobs:
       - name: Notify on failure
         if: failure() && (env.DISCORD_WEBHOOK_URL != '' || env.SLACK_WEBHOOK_URL != '')
         run: |
-          MESSAGE="🚨 **Digital Product Factory FAILED**\nRepo: ${{ github.repository }}\nRun: ${{ github.run_id }}\nTime: $(date -u)\nLogs: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          MESSAGE="➦�
+*(Digital Product Factory FAILED**\nRepo: ${y github.repository }}\nRun: ${{ github.run_id }}\nTime: $(date -u)\nLogs: https://github.com/${y github.repository }}/actions/runs/${{ github.run_id }}"
           
           if [ -n "${{ secrets.DISCORD_WEBHOOK_URL }}" ]; then
             curl -X POST -H "Content-Type: application/json" \
