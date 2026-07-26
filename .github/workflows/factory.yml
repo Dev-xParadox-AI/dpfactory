@@ -86,6 +86,8 @@ jobs:
         id: factory
         run: |
           set +e
+          # Ensure log directories exist (Python logging creates FileHandler at module import)
+          mkdir -p logs/runs
           # Parse inputs - default to dry_run if empty (cron trigger has no inputs)
           NICHES="${{ github.event.inputs.niches }}"
           COUNT="${{ github.event.inputs.count }}"
