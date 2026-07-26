@@ -1,0 +1,104 @@
+# Digital Product Factory - Configuration
+# Budget: 0 PLN | 100% Automated | Hosted on Cloudflare Workers + GitHub Actions
+
+factory:
+  name: "PL Creator Toolkit Factory"
+  timezone: "Europe/Warsaw"
+  language: "pl"
+  currency: "PLN"
+  default_price_pln: 0  # 0 = "Pay what you want" (Gumroad free tier)
+  products_per_run: 3
+  runs_per_day: 2
+
+# Niche definitions for Polish creators
+niches:
+  - id: "notion-templates-pl"
+    name: "Szablony Notion dla Polaków"
+    tags: ["notion", "produktywność", "organizacja", "polski", "szablony"]
+    target_audience: "studenci, freelancerzy, małe firmy PL"
+    product_types: ["template", "dashboard", "system"]
+    price_range_pln: [0, 29, 49]
+    seo_keywords: ["notion szablon", "notion dashboard", "organizacja pracy", "system notion"]
+
+  - id: "ai-prompts-pl"
+    name: "Pakiety Promptów AI (PL)"
+    tags: ["ai", "prompt engineering", "chatgpt", "midjourney", "automatyzacja"]
+    target_audience: "twórcy treści, marketerzy, programiści PL"
+    product_types: ["prompt_pack", "cheatsheet", "workflow"]
+    price_range_pln: [0, 19, 39]
+    seo_keywords: ["prompty chatgpt", "prompt engineering polski", "ai automatyzacja", "midjourney prompty"]
+
+  - id: "obsidian-pkm-pl"
+    name: "Systemy PKM w Obsidian (PL)"
+    tags: ["obsidian", "pkm", "notatki", "drugi mózg", "zettelkasten"]
+    target_audience: "studenci, badacze, knowledge workers PL"
+    product_types: ["vault", "plugin_config", "workflow"]
+    price_range_pln: [0, 29, 59]
+    seo_keywords: ["obsidian vault", "pkm polski", "drugi mózg", "zettelkasten polski"]
+
+  - id: "automation-n8n-pl"
+    name: "Workflows n8n / Make dla PL"
+    tags: ["n8n", "make", "automatyzacja", "no-code", "workflow"]
+    target_audience: "małe firmy, solopreneurzy, VA PL"
+    product_types: ["workflow_json", "blueprint", "video_guide"]
+    price_range_pln: [0, 49, 99]
+    seo_keywords: ["n8n workflow", "automatyzacja make", "no-code polska", "workflow json"]
+
+  - id: "content-templates-pl"
+    name: "Szablony Contentu (LinkedIn, Newsletter, Blog)"
+    tags: ["content marketing", "linkedin", "newsletter", "copywriting", "szablony"]
+    target_audience: "personal branding, B2B, creator economy PL"
+    product_types: ["template_pack", "calendar", "hook_library"]
+    price_range_pln: [0, 29, 59]
+    seo_keywords: ["szablony linkedin", "content calendar", "haki linkedin", "newsletter szablon"]
+
+# Gumroad API Configuration (set via GitHub Secrets / Cloudflare Workers Secrets)
+gumroad:
+  api_base: "https://api.gumroad.com/v2"
+  # access_token: set via secret GUMROAD_ACCESS_TOKEN
+  # application_id: set via secret GUMROAD_APPLICATION_ID
+  default_visibility: "public"  # or "draft" for review
+  default_license: "personal_use"
+
+# AI Generation (using local/edge models or free tiers)
+ai:
+  provider: "nvidia_nim"  # using NVIDIA NIM API key from env
+  # provider: "cloudflare_ai"  # free tier: @cf/meta/llama-3-8b-instruct
+  # provider: "ollama_local"   # free local LLM via Ollama
+  models:
+    text: "meta/llama-3.1-8b-instruct"
+    code: "codellama/codellama-7b-instruct"
+  temperature: 0.7
+  max_tokens: 4096
+
+# Packaging
+packaging:
+  formats: ["pdf", "json", "zip"]
+  pdf:
+    engine: "weasyprint"  # runs in Python on GitHub Actions
+    fonts_dir: "assets/fonts"
+    template_dir: "templates/pdf"
+  zip:
+    include_readme: true
+    include_license: true
+    license_template: "templates/licenses/personal_use.md"
+
+# Scheduling (GitHub Actions cron)
+schedule:
+  # Runs at 06:00 and 18:00 CET/CEST
+  cron: "0 6,18 * * *"
+  timezone: "Europe/Warsaw"
+
+# Logging & Monitoring
+monitoring:
+  log_level: "INFO"
+  log_retention_days: 30
+  alert_on_failure: true
+  # webhook_url: set via secret for Discord/Slack/Telegram alerts
+
+# Free hosting targets
+hosting:
+  primary: "cloudflare_workers"  # Free tier: 100k requests/day
+  ci: "github_actions"  # Free tier: 2000 min/month
+  storage: "cloudflare_r2"  # Free tier: 10 GB
+  # All configured via secrets, no credit card required

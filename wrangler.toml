@@ -1,0 +1,37 @@
+# Digital Product Factory - Cloudflare Workers Configuration
+# Deploy with: npx wrangler deploy
+
+name = "digital-product-factory"
+main = "src/workers/factory_worker.py"
+compatibility_date = "2024-12-01"
+python_version = "3.11"
+
+# Triggers
+[triggers]
+crons = ["0 4 * * *", "0 16 * * *"]  # 06:00 and 18:00 CET/CEST
+
+# Environment variables (set via `wrangler secret put`)
+[vars]
+DPF_CONFIG_PATH = "config/settings.yaml"
+FACTORY_DRY_RUN = "false"
+LOG_LEVEL = "INFO"
+
+# Bindings
+[[r2_buckets]]
+binding = "PRODUCTS_BUCKET"
+bucket_name = "dpfactory-products"
+
+[[kv_namespaces]]
+binding = "FACTORY_STATE"
+id = "your-kv-namespace-id"
+preview_id = "your-preview-kv-namespace-id"
+
+# AI Binding (Workers AI)
+[ai]
+binding = "AI"
+
+# Secrets (set via `wrangler secret put SECRET_NAME`)
+# GUMROAD_ACCESS_TOKEN
+# GUMROAD_APPLICATION_ID
+# DISCORD_WEBHOOK_URL (optional)
+# SLACK_WEBHOOK_URL (optional)

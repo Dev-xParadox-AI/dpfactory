@@ -1,0 +1,25 @@
+# Digital Product Factory - Python Dependencies
+# Core
+pyyaml>=6.0
+requests>=2.31
+python-dotenv>=1.0
+
+# AI Generation
+# Cloudflare Workers AI uses REST API (requests)
+# Ollama uses REST API (requests)
+
+# Packaging
+markdown>=3.5
+weasyprint>=60.0  # PDF generation (requires system deps: GTK3, Cairo, Pango)
+jinja2>=3.1
+
+# Utilities
+tqdm>=4.66
+colorlog>=6.8
+
+# Testing
+pytest>=7.4
+pytest-mock>=3.12
+
+# Type hints
+typing-extensions>=4.8

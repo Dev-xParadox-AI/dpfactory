@@ -1,0 +1,29 @@
+# Logs and reports
+logs/
+*.log
+
+# Generated products (gitignored, uploaded as artifacts)
+products/
+
+# Environment
+.env
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.coverage
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Verification scripts
+/tmp/hermes-verify-*.py

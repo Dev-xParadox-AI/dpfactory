@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <title>{{TITLE}}</title>
+    <style>
+        @page {
+            size: A4;
+            margin: 2.5cm;
+            @bottom-center {
+                content: counter(page);
+                font-size: 10pt;
+                color: #666;
+                font-family: 'DejaVu Sans', sans-serif;
+            }
+        }
+        body {
+            font-family: 'DejaVu Sans', 'Arial', sans-serif;
+            line-height: 1.65;
+            color: #1a1a1a;
+            font-size: 11pt;
+        }
+        .cover {
+            text-align: center;
+            padding: 4rem 0;
+            border-bottom: 3px solid #2563eb;
+            margin-bottom: 2.5rem;
+            page-break-after: always;
+        }
+        .cover h1 {
+            font-size: 2.4rem;
+            color: #1e293b;
+            margin-bottom: 0.75rem;
+            line-height: 1.3;
+        }
+        .cover .subtitle {
+            font-size: 1.15rem;
+            color: #64748b;
+            margin-bottom: 1.5rem;
+        }
+        .cover .price {
+            font-size: 1.35rem;
+            font-weight: 600;
+            color: #2563eb;
+            margin-top: 1rem;
+        }
+        .cover .badges {
+            margin-top: 2rem;
+            display: flex;
+            justify-content: center;
+            gap: 0.75rem;
+            flex-wrap: wrap;
+        }
+        .badge {
+            background: #f1f5f9;
+            color: #334155;
+            padding: 0.4rem 0.9rem;
+            border-radius: 9999px;
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+        h1, h2, h3, h4 {
+            color: #1e293b;
+            page-break-after: avoid;
+            margin-top: 2rem;
+            margin-bottom: 1rem;
+        }
+        h1 { font-size: 2rem; border-bottom: 2px solid #e2e8f0; padding-bottom: 0.5rem; }
+        h2 { font-size: 1.5rem; }
+        h3 { font-size: 1.25rem; }
+        h4 { font-size: 1.1rem; }
+        p { margin-bottom: 1rem; text-align: justify; }
+        ul, ol { margin-bottom: 1rem; padding-left: 1.5rem; }
+        li { margin-bottom: 0.4rem; }
+        code {
+            font-family: 'DejaVu Sans Mono', 'Consolas', monospace;
+            background: #f1f5f9;
+            padding: 0.15rem 0.4rem;
+            border-radius: 4px;
+            font-size: 0.9em;
+        }
+        pre {
+            background: #0f172a;
+            color: #e2e8f0;
+            padding: 1.25rem;
+            border-radius: 8px;
+            overflow-x: auto;
+            page-break-inside: avoid;
+            margin: 1.5rem 0;
+        }
+        pre code {
+            background: none;
+            padding: 0;
+            color: inherit;
+            font-size: 0.85rem;
+            line-height: 1.6;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1.5rem 0;
+            page-break-inside: avoid;
+        }
+        th, td {
+            border: 1px solid #e2e8f0;
+            padding: 0.75rem 1rem;
+            text-align: left;
+        }
+        th {
+            background: #f8fafc;
+            font-weight: 600;
+        }
+        tr:nth-child(even) td {
+            background: #fafafa;
+        }
+        blockquote {
+            border-left: 4px solid #2563eb;
+            padding-left: 1.5rem;
+            margin: 1.5rem 0;
+            color: #475569;
+            font-style: italic;
+        }
+        a {
+            color: #2563eb;
+            text-decoration: none;
+        }
+        a:hover { text-decoration: underline; }
+        .toc {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 2rem 0;
+            page-break-after: always;
+        }
+        .toc h2 { margin-top: 0; }
+        .toc ul { list-style: none; padding-left: 0; }
+        .toc li { margin: 0.5rem 0; }
+        .toc a { text-decoration: none; color: #1e293b; }
+        .toc a:hover { color: #2563eb; }
+        hr {
+            border: none;
+            border-top: 1px solid #e2e8f0;
+            margin: 2rem 0;
+        }
+        footer {
+            margin-top: 3rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid #e2e8f0;
+            text-align: center;
+            color: #94a3b8;
+            font-size: 0.85rem;
+        }
+        .callout {
+            background: #eff6ff;
+            border: 1px solid #bfdbfe;
+            border-left: 4px solid #2563eb;
+            border-radius: 6px;
+            padding: 1rem 1.5rem;
+            margin: 1.5rem 0;
+        }
+        .callout.warning {
+            background: #fffbeb;
+            border-color: #fcd34d;
+            border-left-color: #f59e0b;
+        }
+        .callout.success {
+            background: #f0fdf4;
+            border-color: #bbf7d0;
+            border-left-color: #10b981;
+        }
+        .callout.danger {
+            background: #fef2f2;
+            border-color: #fecaca;
+            border-left-color: #ef4444;
+        }
+        img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 8px;
+            margin: 1rem 0;
+        }
+        .mermaid {
+            text-align: center;
+            margin: 1.5rem 0;
+        }
+    </style>
+</head>
+<body>
+    <header class="cover">
+        <h1>{{TITLE}}</h1>
+        <p class="subtitle">{{NICHE_NAME}} | {{DATE}}</p>
+        <p class="price">{{PRICE}}</p>
+        <div class="badges">
+            <span class="badge">📄 Markdown</span>
+            <span class="badge">📕 PDF</span>
+            <span class="badge">💾 JSON</span>
+            <span class="badge">📦 ZIP</span>
+        </div>
+    </header>
+    
+    <main>
+        {{CONTENT}}
+    </main>
+    
+    <footer>
+        <p>Wygenerowane automatycznie przez <strong>Digital Product Factory</strong> – automatyczną fabrykę produktów cyfrowych dla twórców PL.</p>
+        <p>Wersja: {{VERSION}} | Data: {{DATE}} | Licencja: Użytkowanie osobiste</p>
+    </footer>
+</body>
+</html>

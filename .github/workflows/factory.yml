@@ -1,0 +1,156 @@
+name: Digital Product Factory
+
+on:
+  schedule:
+    # Runs at 06:00 and 18:00 CET/CEST (04:00 and 16:00 UTC in winter, 04:00 and 16:00 UTC in summer)
+    # GitHub Actions uses UTC
+    - cron: '0 4,16 * * *'
+  workflow_dispatch:
+    inputs:
+      niches:
+        description: 'Niche IDs to process (comma-separated, empty = all)'
+        required: false
+        type: string
+      count:
+        description: 'Products per niche'
+        required: false
+        default: '3'
+        type: string
+      dry_run:
+        description: 'Run without publishing to Gumroad'
+        required: false
+        default: 'false'
+        type: boolean
+
+permissions:
+  contents: read
+  actions: write  # for uploading artifacts
+
+env:
+  # These are set from GitHub Secrets
+  GUMROAD_ACCESS_TOKEN: ${{ secrets.GUMROAD_ACCESS_TOKEN }}
+  GUMROAD_APPLICATION_ID: ${{ secrets.GUMROAD_APPLICATION_ID }}
+  CF_ACCOUNT_ID: ${{ secrets.CF_ACCOUNT_ID }}
+  CF_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
+  # Optional notifications
+  DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+  SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+
+jobs:
+  factory:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+          cache-dependency-path: requirements.txt
+
+      - name: Install system dependencies (WeasyPrint)
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            libpango-1.0-0 \
+            libpangoft2-1.0-0 \
+            libcairo2 \
+            libgdk-pixbuf-2.0-0 \
+            libffi-dev \
+            shared-mime-info \
+            fonts-dejavu-core \
+            fonts-liberation2
+
+      - name: Install Python dependencies
+        run: |
+          pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Create .env from secrets
+        run: |
+          cat > .env << 'EOF'
+          GUMROAD_ACCESS_TOKEN=${{ secrets.GUMROAD_ACCESS_TOKEN }}
+          GUMROAD_APPLICATION_ID=${{ secrets.GUMROAD_APPLICATION_ID }}
+          CF_ACCOUNT_ID=${{ secrets.CF_ACCOUNT_ID }}
+          CF_API_TOKEN=${{ secrets.CF_API_TOKEN }}
+          DISCORD_WEBHOOK_URL=${{ secrets.DISCORD_WEBHOOK_URL }}
+          SLACK_WEBHOOK_URL=${{ secrets.SLACK_WEBHOOK_URL }}
+          EOF
+
+      - name: Run Digital Product Factory
+        id: factory
+        run: |
+          # Parse inputs
+          NICHES="${{ github.event.inputs.niches }}"
+          COUNT="${{ github.event.inputs.count }}"
+          DRY_RUN="${{ github.event.inputs.dry_run }}"
+          
+          CMD="python -m src.scheduler.factory_scheduler"
+          
+          if [ -n "$NICHES" ]; then
+            CMD="$CMD --niches $NICHES"
+          fi
+          
+          if [ -n "$COUNT" ]; then
+            CMD="$CMD --count $COUNT"
+          fi
+          
+          if [ "$DRY_RUN" = "true" ]; then
+            CMD="$CMD --dry-run"
+          fi
+          
+          echo "Running: $CMD"
+          eval $CMD
+          
+          # Capture exit code
+          EXIT_CODE=$?
+          echo "exit_code=$EXIT_CODE" >> $GITHUB_OUTPUT
+          exit $EXIT_CODE
+
+      - name: Upload run reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: factory-run-reports
+          path: logs/runs/
+          retention-days: 30
+
+      - name: Upload generated products
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: generated-products
+          path: products/
+          retention-days: 7
+
+      - name: Notify on failure
+        if: failure() && (env.DISCORD_WEBHOOK_URL != '' || env.SLACK_WEBHOOK_URL != '')
+        run: |
+          MESSAGE="🚨 **Digital Product Factory FAILED**\nRepo: ${{ github.repository }}\nRun: ${{ github.run_id }}\nTime: $(date -u)\nLogs: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          
+          if [ -n "${{ secrets.DISCORD_WEBHOOK_URL }}" ]; then
+            curl -X POST -H "Content-Type: application/json" \
+              -d "{\"content\": \"$MESSAGE\"}" \
+              "${{ secrets.DISCORD_WEBHOOK_URL }}"
+          fi
+          
+          if [ -n "${{ secrets.SLACK_WEBHOOK_URL }}" ]; then
+            curl -X POST -H "Content-Type: application/json" \
+              -d "{\"text\": \"$MESSAGE\"}" \
+              "${{ secrets.SLACK_WEBHOOK_URL }}"
+          fi
+
+      - name: Notify on success (optional)
+        if: success() && env.DISCORD_WEBHOOK_URL != ''
+        run: |
+          # Only notify on manual runs or first run of day
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ] || [ "$(date -u +%H)" = "04" ]; then
+            MESSAGE="✅ **Digital Product Factory completed**\nRepo: ${{ github.repository }}\nRun: ${{ github.run_id }}\nProducts: Check artifacts"
+            curl -X POST -H "Content-Type: application/json" \
+              -d "{\"content\": \"$MESSAGE\"}" \
+              "${{ secrets.DISCORD_WEBHOOK_URL }}"
+          fi
