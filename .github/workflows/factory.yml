@@ -85,12 +85,18 @@ jobs:
       - name: Run Digital Product Factory
         id: factory
         run: |
-          # Parse inputs
+          set +e
+          # Parse inputs - default to dry_run if empty (cron trigger has no inputs)
           NICHES="${{ github.event.inputs.niches }}"
           COUNT="${{ github.event.inputs.count }}"
-          DRY_RUN="${{ github.event.inputs.dry_run }}"
 
-          CMD="python -m src.scheduler.factory_scheduler"
+          # Build command - always dry_run=true for cron (manual runs can pass dry_run=false)
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ] && [ "${{ github.event.inputs.dry_run }}" = "false" ]; then
+            CMD="python -m src.scheduler.factory_scheduler"
+          else
+            # Default: dry_run for cron and any other trigger
+            CMD="python -m src.scheduler.factory_scheduler --dry-run"
+          fi
 
           if [ -n "$NICHES" ]; then
             CMD="$CMD --niches $NICHES"
@@ -100,16 +106,15 @@ jobs:
             CMD="$CMD --count $COUNT"
           fi
 
-          if [ "$DRY_RUN" = "true" ]; then
-            CMD="$CMD --dry-run"
-          fi
-
+          echo "Event: ${{ github.event_name }}"
+          echo "Dry_run input: '${{ github.event.inputs.dry_run }}'"
           echo "Running: $CMD"
           eval $CMD
 
           # Capture exit code
           EXIT_CODE=$?
           echo "exit_code=$EXIT_CODE" >> $GITHUB_OUTPUT
+          set -e
           exit $EXIT_CODE
 
       - name: Upload run reports
