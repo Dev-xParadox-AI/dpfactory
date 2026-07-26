@@ -24,6 +24,10 @@ from src.publishers.gumroad_publisher import GumroadPublisher, PublishResult
 
 
 # Configure logging
+# Ensure log directories exist before creating FileHandler
+Path("logs").mkdir(exist_ok=True)
+Path("logs/runs").mkdir(exist_ok=True)
+
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s | %(levelname)-8s | %(name)s | %(message)s",
@@ -93,7 +97,7 @@ class FactoryScheduler:
         else:
             niches_to_process = config.niches
         
-        products_per_niche = products_per_niche or config.factory.products_per_run
+        products_per_niche = products_per_niche or config.products_per_run
         
         logger.info(f"   Niches: {[n.id for n in niches_to_process]}")
         logger.info(f"   Products per niche: {products_per_niche}")
